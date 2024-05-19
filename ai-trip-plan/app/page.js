@@ -9,7 +9,6 @@ import {parseDate, getLocalTimeZone} from "@internationalized/date";
 import {Button,Select,SelectItem, DateRangePicker, Input, Spacer} from "@nextui-org/react";
 import TableComponent from "./TableComponent.js";
 import "./globals.css";
-import { NextUIProvider } from '@nextui-org/react';
 import {parseISO} from "date-fns";
 import ActivitiesComponent from "./ActivitiesComponent";
 import GalleryComponent from "./GalleryComponent";
@@ -19,13 +18,20 @@ import LoadingComponent from "./LoadingComponent";
 export default function Home() {
   const [budget, setBudget] = useState('');
   const [tripType, setTripType] = useState("");
+  // Get the current date
+const currentDate = new Date();
+// Format the date as a string
+const year = currentDate.getFullYear();
+const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+const day = String(currentDate.getDate()).padStart(2, '0');
+// Combine into a date string
+const dateString = `${year}-${month}-${day}`;
   const [dateTrip, setDateTrip] = useState({
-    start: parseDate("2024-04-01"),
-    end: parseDate("2024-04-08"),
+    start: parseDate(dateString),
+    end: parseDate(dateString),
   });
   const [showTable, setShowTable] = useState(false)
   // data contains the results of the api call
-  // the structure: [[site, item_url, price], [site, item_url, price], [site, item_url, price]]
   const [data, setData] = useState([["Tel Aviv", "TLV", 530, "Herodes", 450], ["Tel Aviv", "TLV", 530, "Herodes", 450]]);
   const [imageObject, setImageObject] = useState([]);
   const [dailyTrips, setDailyTrips] = useState([]);
@@ -60,7 +66,6 @@ export default function Home() {
       },
       body: JSON.stringify({})
     });
-    //console.log(response);
     const response_json = await response.json();
     // close show gif
     setShowLoading(false);
@@ -75,14 +80,13 @@ export default function Home() {
     }
     else{
       setShowLoading(true);
-      // setShowTable(true);
+       // setShowTable(true);
       apiCaller()
     }
   };
 
   // for logs
   useEffect(() => {
-    //apiCaller(); // Fetch data on component mount
     console.log("data: ", data); // Log data to see the structure after fetching
 
 
@@ -113,14 +117,10 @@ export default function Home() {
   const handleSelectionChange = (e) => {
     // Assuming single selection, extract the first key
      setTripType(e.target.value);
-    // const selectedKey = selectedKeys.values().next().value;
-    // setTripType(new Set([selectedKey]));
   };
 
   return (
       <main className={styles.main}>
-        {/*<div className={styles.description}>*/}
-        {/*</div>*/}
         <div className={styles.center}>
           <Image
               className={styles.logo}
@@ -138,8 +138,6 @@ export default function Home() {
             <h2>
               Enter your budget(USD) <span>-&gt;</span>
             </h2>
-            {/*<Input clearable bordered labelPlaceholder="Name" initialValue="NextUI" />*/}
-            {/*<Spacer x={0.5} />*/}
             <Input
                 bordered
                 placeholder={"budget(USD)"}
@@ -202,13 +200,9 @@ export default function Home() {
           </div>
         </div>
         {showLoading && <LoadingComponent/>}
-        {/*<TableComponent data={data}/>*/}
         {showTable && <TableComponent data={data} onRowClick={apiCallDailyPlan} />}
         {showActivities && <GalleryComponent imageComp={imageObject}/>}
         {showActivities && <ActivitiesComponent dailyTrips={dailyTrips} />}
-
-
-
       </main>
   );
 }
